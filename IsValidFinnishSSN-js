@@ -1,0 +1,66 @@
+/**
+   * Validates parameter given SSN. Returns true if SSN is valid, otherwise false.
+   * @param ssn - {String} For example '010190-123A'
+   * @returns {boolean}
+*/
+function isValidFinnishSSN(ssn) {
+
+ const
+   SSN_REGEX = /^[0-3][\d][0-1][0-9][0-9]{2}[+\-A][\d]{3}[\dA-Z]$/
+
+ if (!SSN_REGEX.test(ssn)) {
+      return false;
+    }
+
+ checksumTable = "0123456789ABCDEFHJKLMNPRSTUVWXY".split("")
+
+ centuryMap = {"A": 2000, "-": 1900, "+": 1800}
+
+ const dayOfMonth = parseInt(ssn.substring(0, 2), 10),
+          month = ssn.substring(2, 4),
+          centuryId = ssn.charAt(6),
+          year = parseInt(ssn.substring(4, 6), 10) + centuryMap[centuryId],
+          rollingId = ssn.substring(7, 10),
+          checksum = ssn.substring(10, 11)
+          
+
+ const daysInMonth = daysInGivenMonth(year, month)
+
+
+ if (!daysInMonthMap.hasOwnProperty(month) || dayOfMonth > daysInMonth) {
+      return false
+    }
+
+ const checksumBase = parseInt(ssn.substring(0, 6) + rollingId, 10)
+
+ return  (checksum === checksumTable[checksumBase % 31])
+}
+
+function daysInGivenMonth(year, month) {
+  const daysInMonth = daysInMonthMap[month]
+  return (month === february && isLeapYear(year)) ? daysInMonth + 1 : daysInMonth
+}
+
+function isLeapYear(year) {
+  return ((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0)
+}
+
+
+const
+ february = "02",
+ daysInMonthMap = {
+    "01": 31,
+    "02": 28,
+    "03": 31,
+    "04": 30,
+    "05": 31,
+    "06": 30,
+    "07": 31,
+    "08": 31,
+    "09": 30,
+    "10": 31,
+    "11": 30,
+    "12": 31
+  }
+
+//isValidFinnishSSN('290296-7808')
