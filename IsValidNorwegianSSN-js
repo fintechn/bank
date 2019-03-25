@@ -1,0 +1,110 @@
+!(function(n) {
+	n("noSSNValidator", function(n, t) {
+		(t.isValid = function(n) {
+			if ("string" != typeof n) return !1;
+			if (11 !== n.length) return !1;
+			if (!/^\d+$/.test(n)) return !1;
+			var r = n.substring(0, 6);
+			return (
+				t.isDNumber(n) &&
+					(r = (parseInt(r.substring(0, 1), 10) - 4).toString() + r.substring(1, 6)),
+				!!t.isDateValid(r) &&
+					(t.calculateFirstChecksum(n.substring(0, 9)).toString() === n[9] &&
+						t.calculateSecondChecksum(n.substring(0, 10)).toString() === n[10])
+			);
+		}),
+			(t.isDateValid = function(n) {
+				var t = parseInt(n.substring(0, 2)),
+					r = parseInt(n.substring(2, 4)),
+					e = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+				return !(t < 1 || r < 1) && !(t > e[r - 1]);
+			}),
+			(t.isDNumber = function(n) {
+				var t = parseInt(n.substring(0, 2));
+				return t > 40 && t < 72;
+			}),
+			(t.getGender = function(n) {
+				return (
+					!!t.isValid(n) &&
+					(n.substring(8, 9) % 2 == 0 ? t.Gender.FEMALE : t.Gender.MALE)
+				);
+			}),
+			(t.Gender = { MALE: "MALE", FEMALE: "FEMALE" }),
+			(t.calculateFirstChecksum = function(n) {
+				if ("string" != typeof n) return !1;
+				if (9 !== n.length) return !1;
+				var t =
+					11 -
+					(3 *
+						(n = n.split("").map(function(n) {
+							return parseInt(n);
+						}))[0] +
+						7 * n[1] +
+						6 * n[2] +
+						1 * n[3] +
+						8 * n[4] +
+						9 * n[5] +
+						4 * n[6] +
+						5 * n[7] +
+						2 * n[8]) %
+						11;
+				return 10 !== t && (11 === t && (t = 0), t);
+			}),
+			(t.calculateSecondChecksum = function(n) {
+				if ("string" != typeof n) return !1;
+				if (10 !== n.length) return !1;
+				var t =
+					11 -
+					(5 *
+						(n = n.split("").map(function(n) {
+							return parseInt(n);
+						}))[0] +
+						4 * n[1] +
+						3 * n[2] +
+						2 * n[3] +
+						7 * n[4] +
+						6 * n[5] +
+						5 * n[6] +
+						4 * n[7] +
+						3 * n[8] +
+						2 * n[9]) %
+						11;
+				return 10 !== t && (11 === t && (t = 0), t);
+			}),
+			(t.getCentury = function(n, t) {
+				var r;
+				return (
+					n >= 0 && n <= 499
+						? (r = 19)
+						: n >= 500 && n <= 749 && t >= 55
+							? (r = 18)
+							: n >= 500 && n <= 999 && t <= 39
+								? (r = 20)
+								: n >= 900 && n <= 999 && t >= 40 && (r = 19),
+					r
+				);
+			}),
+			(t.getBirthdate = function(n) {
+				if (t.isValid(n)) {
+					var r = parseInt(n.substring(0, 2), 10),
+						e = n.substring(2, 4),
+						i = n.substring(4, 6),
+						u = n.substring(6, 9),
+						s = t.getCentury(u, i) + i;
+					return t.isDNumber(n) && (r -= 40), new Date(s, e - 1, r);
+				}
+			});
+	});
+})(
+	"function" == typeof define && define.amd
+		? define
+		: function(n, t) {
+				"undefined" != typeof exports
+					? t(require, exports)
+					: t(function(n) {
+							return window[n];
+						}, (window[n] = {}));
+			}
+);
+
+//noSSNValidator.isValid('12037639271')
